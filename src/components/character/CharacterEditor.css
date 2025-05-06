@@ -1,0 +1,222 @@
+.character-editor {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.character-editor h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: var(--primary-color);
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.editor-columns {
+  display: flex;
+  gap: 20px;
+}
+
+.editor-left {
+  flex: 1;
+}
+
+.editor-right {
+  flex: 1;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.form-group+.form-group {
+  margin-top: 15px;
+}
+
+textarea {
+  font-family: inherit;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 100%;
+  resize: vertical;
+}
+
+textarea#personalityOutput,
+textarea#appearanceOutput {
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 5px;
+  margin-bottom: 15px;
+}
+
+.avatar-section {
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.avatar-preview {
+  width: 200px;
+  height: 200px;
+  border-radius: 5px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
+  margin-bottom: 15px;
+}
+
+.avatar-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+.avatar-preview img.default-avatar {
+  opacity: 0.7;
+  filter: grayscale(100%);
+}
+
+.no-avatar {
+  color: #888;
+}
+
+.avatar-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.avatar-actions button {
+  flex: 1;
+}
+
+.prompt-preview {
+  margin-top: 15px;
+}
+
+.prompt-preview h4 {
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+.prompt-preview textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.physical-attributes {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.physical-attributes h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.form-submit {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #ddd;
+}
+
+.cancel-button {
+  background-color: #6c757d;
+}
+
+.save-button {
+  background-color: var(--primary-color);
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  .editor-columns {
+    flex-direction: column;
+  }
+
+  .avatar-preview {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+/* 既存のスタイルに追加 */
+
+.form-group label[for="negativePrompt"],
+.form-group label[for="positivePrompt"] {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form-group label[for="negativePrompt"]::after,
+.form-group label[for="positivePrompt"]::after {
+  font-size: 0.8em;
+  color: #666;
+}
+
+.form-group label[for="positivePrompt"]::after {
+  content: "含めたい要素";
+}
+
+.form-group label[for="negativePrompt"]::after {
+  content: "除外したい要素";
+}
+
+/* 見やすさのために背景色を変える */
+#positivePrompt {
+  background-color: #f0f7ff;
+}
+
+#negativePrompt {
+  background-color: #fff0f0;
+}
