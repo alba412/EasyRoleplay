@@ -1,12 +1,13 @@
+import { pickGreeting } from "@/lib/card";
+import { TEMPORARY_CARD } from "@/lib/card/temporaryCard";
 import ChatView from "@/components/chat/ChatView";
-import { TEMPORARY_CHARACTER } from "@/lib/prompt/temporaryCharacter";
 
 export default function Home() {
-  // 実装順序4でカード読み込みに置き換わる。systemPrompt はクライアントへ渡さない。
+  // 実装順序4でカード読み込みに置き換わる
   return (
     <ChatView
-      characterName={TEMPORARY_CHARACTER.name}
-      greeting={TEMPORARY_CHARACTER.greeting}
+      characterName={TEMPORARY_CARD.name}
+      greeting={pickGreeting(TEMPORARY_CARD) ?? ""}
     />
   );
 }

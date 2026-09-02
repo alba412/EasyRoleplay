@@ -7,10 +7,6 @@
 
 const DEFAULT_BASE_URL = "https://openrouter.ai/api/v1";
 
-/** 環境変数で上書きできる。OpenRouter のモデル一覧にあるIDを指定する。 */
-const DEFAULT_MODEL = "deepseek/deepseek-chat";
-const DEFAULT_TEMPERATURE = 0.9;
-
 export type ChatRole = "system" | "user" | "assistant";
 
 export type ChatMessage = {
@@ -30,8 +26,8 @@ export class OpenRouterError extends Error {
 
 type StreamOptions = {
   messages: ChatMessage[];
-  model?: string;
-  temperature?: number;
+  model: string;
+  temperature: number;
   signal?: AbortSignal;
 };
 
@@ -61,9 +57,9 @@ export async function streamChatCompletion(
       "X-Title": "EasyRoleplay",
     },
     body: JSON.stringify({
-      model: options.model ?? process.env.OPENROUTER_MODEL ?? DEFAULT_MODEL,
+      model: options.model,
       messages: options.messages,
-      temperature: options.temperature ?? DEFAULT_TEMPERATURE,
+      temperature: options.temperature,
       stream: true,
     }),
     signal: options.signal,

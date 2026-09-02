@@ -36,3 +36,12 @@ export function decodeIndexTags(raw: string): string[] {
     return [];
   }
 }
+
+/**
+ * 会話の1通目。characterは greetings から選び、worldは openingText を使う。
+ * 選択肢が無ければ undefined（1通目なしで始まる）。
+ */
+export function pickGreeting(card: Card, index = 0): string | undefined {
+  if (card.mode === "world") return card.openingText;
+  return card.greetings[index] ?? card.greetings[0];
+}

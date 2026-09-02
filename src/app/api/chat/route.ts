@@ -1,11 +1,13 @@
 import type { NextRequest } from "next/server";
 
+import { TEMPORARY_CARD } from "@/lib/card/temporaryCard";
 import {
   OpenRouterError,
   streamChatCompletion,
-  type ChatMessage,
 } from "@/lib/llm/openrouter";
-import { TEMPORARY_CHARACTER } from "@/lib/prompt/temporaryCharacter";
+import { compilePrompt, type ConversationMessage } from "@/lib/prompt/compile";
+import { resolveModelProfile } from "@/lib/prompt/modelProfile";
+import { DEFAULT_SETTINGS, type AppSettings } from "@/lib/prompt/settings";
 
 export const runtime = "nodejs";
 
@@ -29,16 +31,33 @@ export async function POST(request: NextRequest) {
     return errorResponse("送信するメッセージがありません。", 400);
   }
 
+  // 全体設定の画面はまだ無いので既定値を使う
+  const settings: AppSettings = {
+    ...DEFAULT_SETTINGS,
+    model: process.env.OPENROUTER_MODEL || DEFAULT_SETTINGS.model,
+  };
+  const modelProfile = resolveModelProfile(settings.model);
+
+  // カード管理UIができるまでは決め打ちカードを使う
+  const { messages, prefill } = compilePrompt({
+    card: TEMPORARY_CARD,
+    settings,
+    history,
+    modelProfile,
+  });
+
   try {
-    const stream = await streamChatCompletion({
-      messages: [
-        { role: "system", content: TEMPORARY_CHARACTER.systemPrompt },
-        ...history,
-      ],
+    const upstream = await streamChatCompletion({
+      // プレフィルは書きかけの応答としてモデルに渡す
+      messages: prefill
+        ? [...messages, { role: "assistant", content: prefill }]
+        : messages,
+      model: settings.model,
+      temperature: settings.temperature,
       signal: request.signal,
     });
 
-    return new Response(stream, {
+    return new Response(prefill ? withPrefix(upstream, prefill) : upstream, {
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
         "Cache-Control": "no-store",
@@ -56,12 +75,12 @@ export async function POST(request: NextRequest) {
 }
 
 /** 会話履歴として受け付けられる形だけを通す。system はクライアントから受け取らない。 */
-function parseHistory(value: unknown): ChatMessage[] | null {
+function parseHistory(value: unknown): ConversationMessage[] | null {
   if (!Array.isArray(value)) {
     return null;
   }
 
-  const messages: ChatMessage[] = [];
+  const messages: ConversationMessage[] = [];
   for (const item of value) {
     if (typeof item !== "object" || item === null) {
       return null;
@@ -79,6 +98,34 @@ function parseHistory(value: unknown): ChatMessage[] | null {
     messages.push({ role, content });
   }
   return messages;
+}
+
+/** プレフィルはモデルの応答に含まれないので、こちらで先頭に足して返す */
+function withPrefix(
+  stream: ReadableStream<Uint8Array>,
+  prefix: string,
+): ReadableStream<Uint8Array> {
+  const reader = stream.getReader();
+  let sentPrefix = false;
+
+  return new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      if (!sentPrefix) {
+        sentPrefix = true;
+        controller.enqueue(new TextEncoder().encode(prefix));
+        return;
+      }
+      const { done, value } = await reader.read();
+      if (done) {
+        controller.close();
+        return;
+      }
+      controller.enqueue(value);
+    },
+    async cancel(reason) {
+      await reader.cancel(reason).catch(() => {});
+    },
+  });
 }
 
 function errorResponse(message: string, status: number) {
