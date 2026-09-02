@@ -1,0 +1,33 @@
+// カード本体はPNG（tEXtチャンク）が正。このテーブルは一覧・検索用のインデックスだけを持つ。
+// DBが壊れてもPNGを読み直せば復元できる状態を維持すること。
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Card {
+  id      String @id
+  mode    String // "character" | "world"
+  name    String
+  summary String
+  safety  String // "safe" | "sensitive" | "nsfw" | "explicit"
+
+  // SQLiteに配列型が無いためJSON文字列で持つ。
+  // Postgres移行時（実装順序7）に String[] へ変える。
+  tags String
+
+  // 正であるPNGの場所。ここからカード本体を読み直せる
+  filePath String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([mode])
+  @@index([safety])
+  @@index([updatedAt])
+}
